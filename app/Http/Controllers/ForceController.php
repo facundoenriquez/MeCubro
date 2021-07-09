@@ -21,17 +21,21 @@ class ForceController extends Controller
         $DNA_LENGTH = 4;
         $LIMIT_TO_SEARCH = 3;
 
-
+        var_dump($DNA);
+        
         if ($this->checkDNAcharts($DNA)) {
             $matriz = $this->MatrixInizialited($DNA);
             $totalMatch += $this->horizontalRoute($matriz);
             $totalMatch += $this->verticalRoute($matriz);
             $totalMatch += $this->diagonalRoute($matriz);
+            if ($totalMatch > 1) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return "la secuencia de ADN no contiene los caracteres apropiados";
         }
-
-        dd($matriz);
     }
 
     public function checkDNAcharts($array)
