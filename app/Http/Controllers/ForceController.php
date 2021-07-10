@@ -32,9 +32,9 @@ class ForceController extends Controller
                 $matriz = $this->MatrixInizialited($DNA);
                 $totalMatch = $this->horizontalRoute($matriz) + $this->verticalRoute($matriz) + $this->diagonalRoute($matriz);
                 if ($totalMatch > 1) {
-                    return true;
+                    return response(true,200);
                 } else {
-                    return false;
+                    return response(false,403);
                 }
             } else {
                 return "la secuencia de ADN no contiene los caracteres apropiados";

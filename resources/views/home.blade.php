@@ -14,7 +14,7 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('isforceuser') }}" method="post">
+                        <form action="{{ route('force-users') }}" method="post">
                             @csrf   
                             <div class="mb-3">
                                 <label for="exampleFormControlInput1" class="form-label">DNA</label>
