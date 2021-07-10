@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 
 class ForceController extends Controller
 {
-    /* private $array = ['ACGTTC', 'ACGAAC', 'ACTGTA', 'AGGTCA', 'AGTCAA', 'TTACGC']; */
-
     public function isForceUser(Request $request)
     {
         $this->countVertical = 1;
