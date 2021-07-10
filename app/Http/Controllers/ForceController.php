@@ -3,38 +3,55 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\Else_;
 
 class ForceController extends Controller
 {
     /* private $array = ['ACGTTC', 'ACGAAC', 'ACTGTA', 'AGGTCA', 'AGTCAA', 'TTACGC']; */
 
-    public function isForceUser($DNA)
+    public function isForceUser(Request $request)
     {
-        $countVertical = 1;
-        $countHorizontal = 1;
-        $countDiagonal = 1;
-        $matchVertical = 0;
-        $matchHorizontal = 0;
-        $matchDiagonal = 0;
+        $this->countVertical = 1;
+        $this->countHorizontal = 1;
+        $this->countDiagonal = 1;
+        $this->matchVertical = 0;
+        $this->matchHorizontal = 0;
+        $this->matchDiagonal = 0;
         $totalMatch = 0;
-        $DNA_LENGTH = 4;
-        $LIMIT_TO_SEARCH = 3;
+        $this->DNA_LENGTH = 4;
+        $this->LIMIT_TO_SEARCH = 3;
 
-        var_dump($DNA);
-        
-        if ($this->checkDNAcharts($DNA)) {
-            $matriz = $this->MatrixInizialited($DNA);
-            $totalMatch += $this->horizontalRoute($matriz);
-            $totalMatch += $this->verticalRoute($matriz);
-            $totalMatch += $this->diagonalRoute($matriz);
-            if ($totalMatch > 1) {
-                return true;
+        if (is_array($request->dna)) {
+            $DNA = $request->dna;
+        } else {
+            $root = intval(sqrt(strlen($request->dna)));
+            $DNA = str_split($request->dna, $root);
+        }
+
+        if ($this->checkSquareMatrix($DNA)) {
+            if ($this->checkDNAcharts($DNA)) {
+                $matriz = $this->MatrixInizialited($DNA);
+                $totalMatch = $this->horizontalRoute($matriz) + $this->verticalRoute($matriz) + $this->diagonalRoute($matriz);
+                if ($totalMatch > 1) {
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                return "la secuencia de ADN no contiene los caracteres apropiados";
             }
         } else {
-            return "la secuencia de ADN no contiene los caracteres apropiados";
+            return "la matriz no es cuadrada";
+        }
+    }
+
+    public function checkSquareMatrix($array)
+    {
+        $rows = count($array);
+        $cols = strlen($array[0]);
+        if ($rows == $cols) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -42,7 +59,7 @@ class ForceController extends Controller
     {
         for ($i = 0; $i < count($array); $i++) {
             for ($j = 0; $j < strlen($array[$i]); $j++) {
-                if ($array[$i][$j] != 'A' || $array[$i][$j] != 'C' || $array[$i][$j] != 'G' || $array[$i][$j] != 'T') {
+                if ($array[$i][$j] != 'A' && $array[$i][$j] != 'C' && $array[$i][$j] != 'G' && $array[$i][$j] != 'T') {
                     return false;
                 }
             }
@@ -66,10 +83,12 @@ class ForceController extends Controller
         for ($i = 0; $i < count($matriz); $i++) {
             for ($j = 0; $j < count($matriz); $j++) {
                 if ($this->countHorizontal != $this->DNA_LENGTH) {
-                    if ($matriz[$i][$j] == $matriz[$i][$j + 1]) {
-                        $this->countHorizontal++;
-                    } else {
-                        $this->countHorizontal = 1;
+                    if ($j != count($matriz) - 1) {
+                        if ($matriz[$i][$j] == $matriz[$i][$j + 1]) {
+                            $this->countHorizontal++;
+                        } else {
+                            $this->countHorizontal = 1;
+                        }
                     }
                 } else {
                     $this->matchHorizontal++;
@@ -87,10 +106,12 @@ class ForceController extends Controller
         for ($j = 0; $j < count($matriz); $j++) {
             for ($i = 0; $i < count($matriz); $i++) {
                 if ($this->countVertical != $this->DNA_LENGTH) {
-                    if ($matriz[$i][$j] == $matriz[$i + 1][$j]) {
-                        $this->countVertical++;
-                    } else {
-                        $this->countVertical = 1;
+                    if ($i != count($matriz) - 1) {
+                        if ($matriz[$i][$j] == $matriz[$i + 1][$j]) {
+                            $this->countVertical++;
+                        } else {
+                            $this->countVertical = 1;
+                        }
                     }
                 } else {
                     $this->matchVertical++;
@@ -113,14 +134,16 @@ class ForceController extends Controller
             $aux2 = $j;
             for ($y = 0; $y < count($matriz) - $j; $y++) {
                 if ($this->countDiagonal != $this->DNA_LENGTH) {
-                    if ($matriz[$aux][$aux2] == $matriz[$aux + 1][$aux2 + 1]) {
-                        $this->countDiagonal++;
-                        $aux++;
-                        $aux2++;
-                    } else {
-                        $this->countDiagonal = 1;
-                        $aux++;
-                        $aux2++;
+                    if ($aux != count($matriz) - $j - 1) {
+                        if ($matriz[$aux][$aux2] == $matriz[$aux + 1][$aux2 + 1]) {
+                            $this->countDiagonal++;
+                            $aux++;
+                            $aux2++;
+                        } else {
+                            $this->countDiagonal = 1;
+                            $aux++;
+                            $aux2++;
+                        }
                     }
                 } else {
                     $this->matchDiagonal++;
@@ -139,14 +162,16 @@ class ForceController extends Controller
             $aux2 = 0;
             for ($y = 0; $y < count($matriz) - $i; $y++) {
                 if ($this->countDiagonal != $this->DNA_LENGTH) {
-                    if ($matriz[$aux][$aux2] == $matriz[$aux + 1][$aux2 + 1]) {
-                        $this->countDiagonal++;
-                        $aux++;
-                        $aux2++;
-                    } else {
-                        $this->countDiagonal = 1;
-                        $aux++;
-                        $aux2++;
+                    if ($aux2 != count($matriz) - $i - 1) {
+                        if ($matriz[$aux][$aux2] == $matriz[$aux + 1][$aux2 + 1]) {
+                            $this->countDiagonal++;
+                            $aux++;
+                            $aux2++;
+                        } else {
+                            $this->countDiagonal = 1;
+                            $aux++;
+                            $aux2++;
+                        }
                     }
                 } else {
                     $this->matchDiagonal++;
@@ -158,7 +183,7 @@ class ForceController extends Controller
             $this->countDiagonal = 1;
         }
         $this->countDiagonal = 1;
-
+        
         return $this->matchDiagonal;
     }
 }

@@ -22,4 +22,4 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::post('/isforceuser', [ForceController::class, 'isForceUser']);
+Route::post('/isforceuser', [ForceController::class, 'isForceUser'])->name('isforceuser');
