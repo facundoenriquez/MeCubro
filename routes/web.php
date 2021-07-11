@@ -23,3 +23,4 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::post('/force-users', [ForceController::class, 'isForceUser'])->name('force-users');
+Route::get('/stats', [ForceController::class, 'stats'])->name('stats');

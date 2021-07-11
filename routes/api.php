@@ -22,3 +22,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Auth::routes();
 
 Route::post('/force-users', [ForceController::class, 'isForceUser'])->name('force-users');
+Route::get('/stats', [ForceController::class, 'stats'])->name('stats');
+

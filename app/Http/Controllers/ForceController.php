@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DNA;
 use Illuminate\Http\Request;
 
 class ForceController extends Controller
 {
+    /* private $array = ['ACGTTC', 'ACGAAC', 'ACTGTA', 'AGGTCA', 'AGTCAA', 'TTACGC']; */
+
     public function isForceUser(Request $request)
     {
         $this->countVertical = 1;
@@ -30,9 +33,11 @@ class ForceController extends Controller
                 $matriz = $this->MatrixInizialited($DNA);
                 $totalMatch = $this->horizontalRoute($matriz) + $this->verticalRoute($matriz) + $this->diagonalRoute($matriz);
                 if ($totalMatch > 1) {
-                    return response(true,200);
+                    $this->saveDna($request->dna, true);
+                    return response(true, 200);
                 } else {
-                    return response(false,403);
+                    $this->saveDna($request->dna, false);
+                    return response(false, 403);
                 }
             } else {
                 return "la secuencia de ADN no contiene los caracteres apropiados";
@@ -181,7 +186,33 @@ class ForceController extends Controller
             $this->countDiagonal = 1;
         }
         $this->countDiagonal = 1;
-        
+
         return $this->matchDiagonal;
+    }
+
+    //GUARDAR DNA
+    public function saveDna($dna, $isForce)
+    {
+        DNA::create([
+            'dnaSecuence' => $dna,
+            'isForceUser' => $isForce
+        ]);
+    }
+
+    //STATS
+    public function stats()
+    {
+        $forceUser = 0;
+        $forceNonUser = 0;
+        $DNAs = DNA::all();
+        foreach ($DNAs as $dna) {
+            if ($dna->isForceUser) {
+                $forceUser++;
+            } else {
+                $forceNonUser++;
+            }
+        }
+        $ratio = $forceUser / $forceNonUser;
+        return response()->json(['force_user_dna' => $forceUser, 'non_force_user_dna' => $forceNonUser, 'ratio' => $ratio]);
     }
 }
